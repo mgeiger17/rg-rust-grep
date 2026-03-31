@@ -29,3 +29,11 @@ fn main() {
 fn search_query_in_string(query: String, string: String) -> String {
     return "nothing found".to_string();
 }
+
+// time spent: 40 min
+// lesson learned:
+// Rust hat keine Exception und nutzt Typen um zwischen Fehler zu unterscheiden
+// offene Frage:
+// Was sind Macros
+// Was machen die Pipes (|)
+//
