@@ -13,11 +13,6 @@ enum SearchResult {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let mut i = 1;
-    for arg in &args {
-        println!("{i}.{arg}");
-        i = i + 1
-    }
     // catch if there is something missing
     if args.len() != 2 + 1 {
         panic!("You need to Enter Query file!");
@@ -38,9 +33,8 @@ fn main() {
     if let Ok(lines) = read_lines(file_path) {
         // Consumes the iterator, returns an (Optional) String
         for (i, line) in lines.map_while(Result::ok).enumerate() {
-            println!("{}. {}", i, line);
             let result = search_searchable_in_string(&searchable, line, &map);
-            println!("{}", result)
+            println!("{}. {}", i + 1, result)
         }
     } else {
         println!(
@@ -89,20 +83,10 @@ fn search_searchable_in_string(
             .copied()
             .unwrap_or(searchable.len());
 
-        println!(
-            "This is char: {} for pivot: {} and implies steps: {}",
-            char_at_pivot, pivot, steps
-        );
-
         if steps == 0 {
             let start: isize = pivot as isize - searchable.len() as isize + 1;
             let end: usize = pivot + 1;
 
-            // If Beginning is directly the matching, but there is not possible to match whole
-            if start < 0 {
-                steps = searchable.len();
-                break;
-            }
             let result: SearchResult = check_word(&string[start as usize..end], searchable);
             match result {
                 SearchResult::Matched() => {
@@ -139,18 +123,8 @@ fn search_searchable_in_string(
 }
 
 fn check_word(string: &str, searchable: &String) -> SearchResult {
-    println!("stringslice: {} <=> searchable: {}", string, searchable);
-
     for (index, char_to_proove) in string.chars().rev().enumerate() {
-        if char_to_proove == searchable.chars().rev().nth(index).unwrap() {
-            println!("THis should be matching");
-        } else {
-            println!(
-                "This is not matching because char_to_proove: {} is not {} for index: {}",
-                char_to_proove,
-                searchable.chars().nth(searchable.len() - index).unwrap(),
-                index
-            );
+        if !(char_to_proove == searchable.chars().rev().nth(index).unwrap()) {
             return SearchResult::NotMatchedBecause(char_to_proove);
         }
     }
