@@ -31,4 +31,3 @@ Das Programm soll eine Datei nach einer bestimmten Zeichenfolge durchsuchen und 
 ```bash
 $ cargo run -- "suche" testdatei.txt
 ```
-

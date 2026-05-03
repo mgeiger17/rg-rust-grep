@@ -32,12 +32,12 @@ fn main() {
 
     let mut map: HashMap<char, usize> = HashMap::new();
 
-    for (i, c) in searchable.chars().rev().enumerate() {
-        if map.get(&c) == None {
+    for (index, char_searchable) in searchable.chars().rev().enumerate() {
+        if map.get(&char_searchable) == None {
             if ignore_case {
-                map.insert(c.to_ascii_lowercase(), i);
+                map.insert(char_searchable.to_ascii_lowercase(), index);
             } else {
-                map.insert(c, i);
+                map.insert(char_searchable, index);
             }
         }
     }
@@ -91,6 +91,10 @@ fn search_searchable_in_string(
     let mut matched_indicies: LinkedList<usize> = LinkedList::new();
     let chars_string: Vec<char> = string.chars().collect();
     loop {
+        if pivot >= chars_string.len() {
+            break;
+        }
+
         let mut char_at_pivot = chars_string[pivot];
         if ignore_case {
             char_at_pivot = char_at_pivot.to_ascii_lowercase();
@@ -116,14 +120,13 @@ fn search_searchable_in_string(
                         .get(&char_to_proove)
                         .copied()
                         .unwrap_or(searchable.len());
+                    if steps == 0 {
+                        steps = searchable.len();
+                    }
                 }
             }
         }
         pivot += steps;
-
-        if pivot >= string.len() {
-            break;
-        }
     }
 
     let mut result_string = String::new();
@@ -140,6 +143,7 @@ fn search_searchable_in_string(
     result_string
 }
 
+// This function checks if the word is fitting, anf if not returning the incorrect char
 fn check_word(string: &str, searchable: &String, ignore_case: bool) -> SearchResult {
     let searchable_chars: Vec<char> = searchable.chars().collect();
     for (index, char_to_proove) in string.chars().rev().enumerate() {
