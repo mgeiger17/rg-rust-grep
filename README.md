@@ -11,7 +11,8 @@ Das Programm soll eine Datei nach einer bestimmten Zeichenfolge durchsuchen und 
 * **Suche:**
     * Standardmäßig soll die Suche **case-sensitive** (Groß-/Kleinschreibung beachtend) sein.
     * *Optional:* Unterstützung für Case-Insensitivity über eine Umgebungsvariable (z. B. `IGNORE_CASE=1`).
-* **Ausgabe:** Jede gefundene Zeile soll in der Konsole ausgegeben werden.
+* **Ausgabe:** Jede gefundene Zeile soll in der Konsole ausgegeben werden, Treffer markieren.
+    * *Optional:* Farbiege Markierung der Treffer
 
 ### 3. Nicht-funktionale Anforderungen
 * **Fehlerbehandlung:**
@@ -29,5 +30,5 @@ Das Programm soll eine Datei nach einer bestimmten Zeichenfolge durchsuchen und 
 
 ### 5. Beispielhafter Aufruf
 ```bash
-$ cargo run -- "suche" testdatei.txt
+$ cargo run -- -f test.md -s la --ignore-case
 ```
