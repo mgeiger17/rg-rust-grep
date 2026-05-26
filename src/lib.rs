@@ -44,29 +44,6 @@ pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_step_table() {
-        let searchable = "Roller";
-
-        let map_ignore_case_true: HashMap<char, usize> =
-            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4)]);
-        assert_eq!(
-            map_ignore_case_true,
-            create_steps_per_char(&searchable, true)
-        );
-
-        let map_ignore_case_false: HashMap<char, usize> =
-            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4), ('R', 5)]);
-        assert_eq!(
-            map_ignore_case_false,
-            create_steps_per_char(&searchable, false)
-        );
-    }
-}
 fn create_steps_per_char(searchable: &str, ignore_case: bool) -> HashMap<char, usize> {
     let mut steps_per_char: HashMap<char, usize> = HashMap::new();
 
@@ -228,7 +205,7 @@ fn handle_zero_steps(
 /// // No Success
 /// assert_eq!(
 ///     check_for_match(input, &searchable, false),
-///     SearchResult::NotMatchedBecause('i'));
+///     SearchResult::NotMatchedBecause('i', 7));
 /// // Success
 /// assert_eq!(
 ///     check_for_match("Girlfriend", &searchable, false),
@@ -253,4 +230,97 @@ pub fn check_for_match(input: &str, searchable: &str, ignore_case: bool) -> Sear
         }
     }
     SearchResult::Matched
+}
+
+#[cfg(test)]
+mod test {
+    use std::fmt::format;
+
+    use super::*;
+
+    #[test]
+    fn test_step_table() {
+        let searchable = "Roller";
+
+        let map_ignore_case_true: HashMap<char, usize> =
+            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4)]);
+        assert_eq!(
+            map_ignore_case_true,
+            create_steps_per_char(&searchable, true)
+        );
+
+        let map_ignore_case_false: HashMap<char, usize> =
+            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4), ('R', 5)]);
+        assert_eq!(
+            map_ignore_case_false,
+            create_steps_per_char(&searchable, false)
+        );
+    }
+
+    #[test]
+    fn test_step_table_non_ascii() {
+        let searchable = "1.FC Köln";
+
+        let map_ignore_case_true: HashMap<char, usize> = HashMap::from([
+            ('n', 0),
+            ('l', 1),
+            ('ö', 2),
+            ('k', 3),
+            (' ', 4),
+            ('c', 5),
+            ('f', 6),
+            ('.', 7),
+            ('1', 8),
+        ]);
+        assert_eq!(
+            map_ignore_case_true,
+            create_steps_per_char(&searchable, true)
+        );
+
+        let map_ignore_case_false: HashMap<char, usize> = HashMap::from([
+            ('n', 0),
+            ('l', 1),
+            ('ö', 2),
+            ('K', 3),
+            (' ', 4),
+            ('C', 5),
+            ('F', 6),
+            ('.', 7),
+            ('1', 8),
+        ]);
+        assert_eq!(
+            map_ignore_case_false,
+            create_steps_per_char(&searchable, false)
+        );
+    }
+
+    #[test]
+    fn test_check_match() {
+        let input = "1. FC Koeln";
+        let searchable = String::from("1. FC Köln");
+        assert_eq!(
+            check_for_match(input, &searchable, false),
+            SearchResult::NotMatchedBecause('e', 7)
+        );
+        // Success
+        assert_eq!(
+            check_for_match("1. FC Köln", &searchable, false),
+            SearchResult::Matched
+        );
+    }
+
+    #[test]
+    fn test_highlighting() {
+        let input = String::from("This is a String with äöüß!");
+        let searchable = String::from("äöüß");
+
+        let highlighted_str: String =
+            format!("This is a String with {}!", "äöüß".green().to_string());
+
+        let matched_indicies: Vec<usize> = vec![23];
+        let str = highlight_result(matched_indicies, &searchable, &input);
+
+        println!("to test: \n{}", highlighted_str);
+        println!("correct: \n{}", str);
+    }
 }
