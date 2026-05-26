@@ -135,7 +135,7 @@ fn search_searchable_in_string(
             .unwrap_or(searchable.len());
 
         if steps == 0 {
-            // TODO: - `&input` → `&chars_string`
+            // TODO: 3. `&input` → `&chars_string`
             handle_zero_steps(
                 &mut matched_indicies,
                 searchable,
@@ -149,26 +149,28 @@ fn search_searchable_in_string(
         pivot += steps;
     }
 
+    // TODO: 6. `&input` → `&chars_string`
     highlight_result(matched_indicies, searchable, &input)
 }
 
+// TODO: 4. change to Vec<char> format
 fn highlight_result(matched_indicies: Vec<usize>, searchable: &str, input: &str) -> String {
     let mut result_string = String::new();
     let mut last = 0;
 
     for matched_at in matched_indicies {
         let end = matched_at + searchable.len();
-        // TODO: change to Vec<char> format
+        // TODO: 5. change to Vec<char> format
         result_string.push_str(&input[last..matched_at]);
         result_string.push_str(&input[matched_at..end].green().to_string());
         last = end;
     }
-    // TODO: change to Vec<char> format
+    // TODO: 5. change to Vec<char> format
     result_string.push_str(&input[last..input.len()]);
     result_string
 }
 
-// TODO: &Vec<char>
+// TODO: 1. &Vec<char>
 fn handle_zero_steps(
     matched_indicies: &mut Vec<usize>,
     searchable: &str,
@@ -186,6 +188,7 @@ fn handle_zero_steps(
 
     // println!("start: {} end: {}  ", start, end);
 
+    // TODO: 2.
     let result: SearchResult = check_for_match(&input[start..end], searchable, ignore_case);
     match result {
         SearchResult::Matched => {
