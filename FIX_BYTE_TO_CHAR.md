@@ -1,12 +1,3 @@
-# Fix: Byte-Indizes zu Char-Indizes
-
-## Problem
-Der Code arbeitet mit char-Positionen (aus `Vec<char>`), verwendet aber String-Slicing das Byte-Positionen erwartet. Bei UTF-8 Zeichen (Umlaute, etc.) führt das zu falschen Ergebnissen.
-
-## Lösung
-Überall konsequent mit `Vec<char>` arbeiten und nicht mit String-Slicing.
-
----
 
 ## Änderungen
 
