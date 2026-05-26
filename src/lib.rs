@@ -44,16 +44,41 @@ pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_step_table() {
+        let searchable = "Roller";
+
+        let map_ignore_case_true: HashMap<char, usize> =
+            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4)]);
+        assert_eq!(
+            map_ignore_case_true,
+            create_steps_per_char(&searchable.to_string(), true)
+        );
+
+        let map_ignore_case_false: HashMap<char, usize> =
+            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4), ('R', 5)]);
+        assert_eq!(
+            map_ignore_case_false,
+            create_steps_per_char(&searchable.to_string(), false)
+        );
+    }
+}
 fn create_steps_per_char(searchable: &String, ignore_case: bool) -> HashMap<char, usize> {
     let mut steps_per_char: HashMap<char, usize> = HashMap::new();
 
     for (index, char_searchable) in searchable.chars().rev().enumerate() {
-        if steps_per_char.get(&char_searchable) == None {
-            if ignore_case {
-                steps_per_char.insert(char_searchable.to_ascii_lowercase(), index);
-            } else {
-                steps_per_char.insert(char_searchable, index);
-            }
+        let parsed_char_searchable;
+        if ignore_case {
+            parsed_char_searchable = char_searchable.to_ascii_lowercase();
+        } else {
+            parsed_char_searchable = char_searchable;
+        }
+        if steps_per_char.get(&parsed_char_searchable) == None {
+            steps_per_char.insert(parsed_char_searchable, index);
         }
     }
     steps_per_char
