@@ -139,7 +139,7 @@ fn search_searchable_in_string(
             handle_zero_steps(
                 &mut matched_indicies,
                 searchable,
-                &input,
+                &chars_string,
                 &pivot,
                 &mut steps,
                 steps_per_char,
@@ -150,23 +150,29 @@ fn search_searchable_in_string(
     }
 
     // TODO: 6. `&input` → `&chars_string`
-    highlight_result(matched_indicies, searchable, &input)
+    highlight_result(matched_indicies, searchable, &chars_string)
 }
 
 // TODO: 4. change to Vec<char> format
-fn highlight_result(matched_indicies: Vec<usize>, searchable: &str, input: &str) -> String {
+fn highlight_result(matched_indicies: Vec<usize>, searchable: &str, input: &Vec<char>) -> String {
     let mut result_string = String::new();
     let mut last = 0;
 
     for matched_at in matched_indicies {
         let end = matched_at + searchable.len();
         // TODO: 5. change to Vec<char> format
-        result_string.push_str(&input[last..matched_at]);
-        result_string.push_str(&input[matched_at..end].green().to_string());
+        //
+        let before: String = input[last..matched_at].iter().collect();
+        let matched: String = input[matched_at..end].iter().collect();
+
+        result_string.push_str(&before);
+        result_string.push_str(&matched.green().to_string());
         last = end;
     }
     // TODO: 5. change to Vec<char> format
-    result_string.push_str(&input[last..input.len()]);
+    let rest: String = input[last..].iter().collect();
+
+    result_string.push_str(&rest);
     result_string
 }
 
@@ -174,7 +180,7 @@ fn highlight_result(matched_indicies: Vec<usize>, searchable: &str, input: &str)
 fn handle_zero_steps(
     matched_indicies: &mut Vec<usize>,
     searchable: &str,
-    input: &str,
+    input: &Vec<char>,
     pivot: &usize,
     steps: &mut usize,
     steps_per_char: &HashMap<char, usize>,
@@ -189,7 +195,8 @@ fn handle_zero_steps(
     // println!("start: {} end: {}  ", start, end);
 
     // TODO: 2.
-    let result: SearchResult = check_for_match(&input[start..end], searchable, ignore_case);
+    let substring: String = input[start..end].iter().collect();
+    let result: SearchResult = check_for_match(&substring, searchable, ignore_case);
     match result {
         SearchResult::Matched => {
             matched_indicies.push(pivot + 1 - searchable.len());
@@ -228,7 +235,7 @@ fn handle_zero_steps(
 /// // No Success
 /// assert_eq!(
 ///     check_for_match(input, &searchable, false),
-///     SearchResult::NotMatchedBecause('i'));
+///     SearchResult::NotMatchedBecause('i', 7));
 /// // Success
 /// assert_eq!(
 ///     check_for_match("Girlfriend", &searchable, false),

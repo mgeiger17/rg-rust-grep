@@ -41,12 +41,14 @@ result_string.push_str(&input[matched_at..end].green().to_string());
 result_string.push_str(&input[last..input.len()]);
 
 // Neu:
-let before: String = input[last..matched_at].iter().collect();
-let matched: String = input[matched_at..end].iter().collect();
+{
+    
+    let before: String = input[last..matched_at].iter().collect();
+    let matched: String = input[matched_at..end].iter().collect();
 
 
-result_string.push_str(&before);
-result_string.push_str(&matched.green().to_string());
+    result_string.push_str(&before);
+    result_string.push_str(&matched.green().to_string());
 }
 
 let rest: String = input[last..].iter().collect();
