@@ -9,7 +9,7 @@ use std::path::Path;
 #[derive(PartialEq, Debug)]
 pub enum SearchResult {
     Matched,
-    NotMatchedBecause(char),
+    NotMatchedBecause(char, usize),
 }
 
 #[derive(Parser, Debug)]
@@ -135,6 +135,7 @@ fn search_searchable_in_string(
             .unwrap_or(searchable.len());
 
         if steps == 0 {
+            // TODO: - `&input` → `&chars_string`
             handle_zero_steps(
                 &mut matched_indicies,
                 searchable,
@@ -157,14 +158,17 @@ fn highlight_result(matched_indicies: Vec<usize>, searchable: &str, input: &str)
 
     for matched_at in matched_indicies {
         let end = matched_at + searchable.len();
+        // TODO: change to Vec<char> format
         result_string.push_str(&input[last..matched_at]);
         result_string.push_str(&input[matched_at..end].green().to_string());
         last = end;
     }
+    // TODO: change to Vec<char> format
     result_string.push_str(&input[last..input.len()]);
     result_string
 }
 
+// TODO: &Vec<char>
 fn handle_zero_steps(
     matched_indicies: &mut Vec<usize>,
     searchable: &str,
@@ -180,21 +184,30 @@ fn handle_zero_steps(
     };
     let end: usize = pivot + 1;
 
+    // println!("start: {} end: {}  ", start, end);
+
     let result: SearchResult = check_for_match(&input[start..end], searchable, ignore_case);
     match result {
         SearchResult::Matched => {
             matched_indicies.push(pivot + 1 - searchable.len());
             *steps = searchable.len();
         }
-        SearchResult::NotMatchedBecause(char_to_proove) => {
+        SearchResult::NotMatchedBecause(char_to_proove, pivot_decrease) => {
             *steps = steps_per_char
                 .get(&char_to_proove)
                 .copied()
                 .unwrap_or(searchable.len());
 
+            if *steps < pivot_decrease {
+                *steps = 1;
+            } else {
+                *steps -= pivot_decrease;
+            }
+
             // handle case, if potential that the not matching index is, with zero steps
             if *steps == 0 {
-                *steps = searchable.len();
+                // *steps = searchable.len();
+                *steps = 1;
             }
         }
     }
@@ -228,8 +241,12 @@ pub fn check_for_match(input: &str, searchable: &str, ignore_case: bool) -> Sear
             is_equal = char_to_prove
                 == searchable_chars[searchable_chars.len() - 1 - index].to_ascii_lowercase()
         }
+
         if !(is_equal) {
-            return SearchResult::NotMatchedBecause(char_to_prove);
+            return SearchResult::NotMatchedBecause(
+                char_to_prove,
+                searchable_chars.len() - 1 - index,
+            );
         }
     }
     SearchResult::Matched
