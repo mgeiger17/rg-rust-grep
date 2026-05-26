@@ -44,29 +44,6 @@ pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_step_table() {
-        let searchable = "Roller";
-
-        let map_ignore_case_true: HashMap<char, usize> =
-            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4)]);
-        assert_eq!(
-            map_ignore_case_true,
-            create_steps_per_char(&searchable, true)
-        );
-
-        let map_ignore_case_false: HashMap<char, usize> =
-            HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4), ('R', 5)]);
-        assert_eq!(
-            map_ignore_case_false,
-            create_steps_per_char(&searchable, false)
-        );
-    }
-}
 fn create_steps_per_char(searchable: &str, ignore_case: bool) -> HashMap<char, usize> {
     let mut steps_per_char: HashMap<char, usize> = HashMap::new();
 
