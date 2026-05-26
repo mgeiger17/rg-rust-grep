@@ -8,7 +8,7 @@ use std::path::Path;
 
 #[derive(PartialEq, Debug)]
 pub enum SearchResult {
-    Matched(),
+    Matched,
     NotMatchedBecause(char),
 }
 
@@ -56,18 +56,18 @@ mod test {
             HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4)]);
         assert_eq!(
             map_ignore_case_true,
-            create_steps_per_char(&searchable.to_string(), true)
+            create_steps_per_char(&searchable, true)
         );
 
         let map_ignore_case_false: HashMap<char, usize> =
             HashMap::from([('r', 0), ('e', 1), ('l', 2), ('o', 4), ('R', 5)]);
         assert_eq!(
             map_ignore_case_false,
-            create_steps_per_char(&searchable.to_string(), false)
+            create_steps_per_char(&searchable, false)
         );
     }
 }
-fn create_steps_per_char(searchable: &String, ignore_case: bool) -> HashMap<char, usize> {
+fn create_steps_per_char(searchable: &str, ignore_case: bool) -> HashMap<char, usize> {
     let mut steps_per_char: HashMap<char, usize> = HashMap::new();
 
     for (index, char_searchable) in searchable.chars().rev().enumerate() {
@@ -77,9 +77,9 @@ fn create_steps_per_char(searchable: &String, ignore_case: bool) -> HashMap<char
         } else {
             parsed_char_searchable = char_searchable;
         }
-        if steps_per_char.get(&parsed_char_searchable) == None {
-            steps_per_char.insert(parsed_char_searchable, index);
-        }
+        steps_per_char
+            .entry(parsed_char_searchable)
+            .or_insert(index);
     }
     steps_per_char
 }
@@ -112,7 +112,7 @@ where
 /// Liste found erweitern mit index Found && pivot = pivot + LENGTH
 ///                         ^ pivot="a" => 8 weiter also ein zurueck pruefen
 fn search_searchable_in_string(
-    searchable: &String,
+    searchable: &str,
     input: String,
     steps_per_char: &HashMap<char, usize>,
     ignore_case: bool,
@@ -151,7 +151,7 @@ fn search_searchable_in_string(
     highlight_result(matched_indicies, searchable, &input)
 }
 
-fn highlight_result(matched_indicies: Vec<usize>, searchable: &String, input: &String) -> String {
+fn highlight_result(matched_indicies: Vec<usize>, searchable: &str, input: &str) -> String {
     let mut result_string = String::new();
     let mut last = 0;
 
@@ -167,19 +167,22 @@ fn highlight_result(matched_indicies: Vec<usize>, searchable: &String, input: &S
 
 fn handle_zero_steps(
     matched_indicies: &mut Vec<usize>,
-    searchable: &String,
-    input: &String,
+    searchable: &str,
+    input: &str,
     pivot: &usize,
     steps: &mut usize,
     steps_per_char: &HashMap<char, usize>,
     ignore_case: bool,
 ) {
-    let start: usize = pivot - searchable.len() + 1;
+    let start: usize = match pivot.checked_sub(searchable.len() - 1) {
+        Some(val) => val,
+        None => panic!("pivot is to small"),
+    };
     let end: usize = pivot + 1;
 
     let result: SearchResult = check_for_match(&input[start..end], searchable, ignore_case);
     match result {
-        SearchResult::Matched() => {
+        SearchResult::Matched => {
             matched_indicies.push(pivot + 1 - searchable.len());
             *steps = searchable.len();
         }
@@ -213,20 +216,21 @@ fn handle_zero_steps(
 /// // Success
 /// assert_eq!(
 ///     check_for_match("Girlfriend", &searchable, false),
-///     SearchResult::Matched()
+///     SearchResult::Matched
 /// );
 /// ```
-pub fn check_for_match(input: &str, searchable: &String, ignore_case: bool) -> SearchResult {
+pub fn check_for_match(input: &str, searchable: &str, ignore_case: bool) -> SearchResult {
     let searchable_chars: Vec<char> = searchable.chars().collect();
-    for (index, char_to_proove) in input.chars().rev().enumerate() {
-        let mut is_equal = char_to_proove == searchable.chars().rev().nth(index).unwrap();
+    for (index, mut char_to_prove) in input.chars().rev().enumerate() {
+        let mut is_equal = char_to_prove == searchable_chars[searchable_chars.len() - 1 - index];
         if ignore_case {
-            is_equal = char_to_proove.to_ascii_lowercase()
+            char_to_prove = char_to_prove.to_ascii_lowercase();
+            is_equal = char_to_prove
                 == searchable_chars[searchable_chars.len() - 1 - index].to_ascii_lowercase()
         }
         if !(is_equal) {
-            return SearchResult::NotMatchedBecause(char_to_proove);
+            return SearchResult::NotMatchedBecause(char_to_prove);
         }
     }
-    SearchResult::Matched()
+    SearchResult::Matched
 }
