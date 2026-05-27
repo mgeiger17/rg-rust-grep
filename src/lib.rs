@@ -242,8 +242,6 @@ pub fn check_for_match(input: &str, searchable: &str, ignore_case: bool) -> Sear
 
 #[cfg(test)]
 mod test {
-    use std::fmt::format;
-
     use super::*;
 
     #[test]
