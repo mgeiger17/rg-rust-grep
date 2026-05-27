@@ -23,6 +23,7 @@ pub struct Args {
     pub ignore_case: bool,
 }
 
+/// Runs a grep alike Tool with the usage of the Boyer-Moore Algorithm
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     let searchable = &args.searchable;
     let file_path = &args.filepath;
