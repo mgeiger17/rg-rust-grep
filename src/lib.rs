@@ -23,7 +23,7 @@ pub struct Args {
     pub ignore_case: bool,
 }
 
-/// Starts a grep Tool with usage of the Boyer-Moore Algorithm
+/// Runs a grep alike Tool with the usage of the Boyer-Moore Algorithm
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     let searchable = &args.searchable;
     let file_path = &args.filepath;
@@ -235,8 +235,6 @@ pub fn check_for_match(input: &str, searchable: &str, ignore_case: bool) -> Sear
 
 #[cfg(test)]
 mod test {
-    use std::fmt::format;
-
     use super::*;
 
     #[test]
